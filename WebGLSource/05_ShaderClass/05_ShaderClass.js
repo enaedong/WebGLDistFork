@@ -37,8 +37,15 @@ function initWebGL() {
     return true;
 }
 
+// Loading the shader source files
+async function initShader() {
+    const vertexShaderSource = await readShaderFile('shVert.glsl');
+    const fragmentShaderSource = await readShaderFile('shFrag.glsl');
+    shader = new Shader(gl, vertexShaderSource, fragmentShaderSource);
+}
+
 // Create and setup buffers
-function setupBuffers(shader) {
+function setupBuffers() {
     const vertices = new Float32Array([
         // positions      // colors
          0.5, -0.5, 0.0,  1.0, 0.0, 0.0,  // bottom right, red
@@ -67,17 +74,11 @@ function setupBuffers(shader) {
 function render() {
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.bindVertexArray(vao);
-    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);  // 0: 첫번 vertex의 index, 3: vertex의 개수
+
     // browser에게 animation을 위해 render(vao)를 호출하도록 요청
     // 즉, 아래의 명령은 requestAnimationFrame(function() { render(vao); }) 와 같다. 
     requestAnimationFrame(() => render(vao));
-}
-
-// Loading the shader source files
-async function initShader() {
-    const vertexShaderSource = await readShaderFile('shVert.glsl');
-    const fragmentShaderSource = await readShaderFile('shFrag.glsl');
-    shader = new Shader(gl, vertexShaderSource, fragmentShaderSource);
 }
 
 // Main function
@@ -93,7 +94,7 @@ async function main() {
         await initShader();
         
         // 나머지 초기화
-        setupBuffers(shader);
+        setupBuffers();
         shader.use();
         
         // 렌더링 시작
