@@ -24,17 +24,7 @@ function initWebGL() {
     // Set canvas dimensions
     canvas.width = 700;
     canvas.height = 700;
-
-    // Initialize WebGL settings
-    gl.viewport(0, 0, canvas.width, canvas.height);
-    gl.clearColor(0.4, 0.5, 0.6, 1.0);
     
-    return true;
-}
-
-// Set canvas dimensions and WebGL settings
-function setupCanvas() {
-
     // add resize handler
     resizeAspectRatio(gl, canvas);
 
@@ -43,6 +33,8 @@ function setupCanvas() {
 
     // set the background color
     gl.clearColor(0.4, 0.5, 0.6, 1.0);
+    
+    return true;
 }
 
 // Create and setup buffers
@@ -54,7 +46,7 @@ function setupBuffers(shader) {
          0.0,  0.5, 0.0,  0.0, 0.0, 1.0   // top center, blue
     ]);
 
-    const vao = gl.createVertexArray();
+    vao = gl.createVertexArray();
     gl.bindVertexArray(vao);
 
     const vertexBuffer = gl.createBuffer();
@@ -63,20 +55,16 @@ function setupBuffers(shader) {
 
     //한 vertex의 데이터 구조 (위의 vertices array 참조))
     //[x y z r g b] = 6개의 float 값 (size = 6)
-    //↑     ↑
-    //|     |
-    //|     +-- 색상 데이터 시작 (offset: 3 * Float32Array.BYTES_PER_ELEMENT)
-    //+-------- 위치 데이터 시작 (offset: 0)
+    //↑      ↑---- color 데이터 시작 (offset: 3 * Float32Array.BYTES_PER_ELEMENT)
+    //↑----------- position 데이터 시작 (offset: 0)
 
     shader.setAttribPointer('aPos', 3, gl.FLOAT, false, 6 * Float32Array.BYTES_PER_ELEMENT, 0);
     shader.setAttribPointer('aColor', 3, gl.FLOAT, false, 6 * Float32Array.BYTES_PER_ELEMENT, 
                         3 * Float32Array.BYTES_PER_ELEMENT);
-
-    return vao;
 }
 
 // Render function
-function render(vao) {
+function render() {
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.bindVertexArray(vao);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
@@ -89,22 +77,27 @@ function render(vao) {
 async function initShader() {
     const vertexShaderSource = await readShaderFile('shVert.glsl');
     const fragmentShaderSource = await readShaderFile('shFrag.glsl');
-    return new Shader(gl, vertexShaderSource, fragmentShaderSource);
+    shader = new Shader(gl, vertexShaderSource, fragmentShaderSource);
 }
 
 // Main function
 async function main() {
     try {
+        
+        // WebGL 초기화
+        if (!initWebGL()) {
+            throw new Error('WebGL 초기화 실패');
+        }
+        
         // 셰이더 초기화
-        shader = await initShader();
+        await initShader();
         
         // 나머지 초기화
-        setupCanvas();
-        vao = setupBuffers(shader);
+        setupBuffers(shader);
         shader.use();
         
         // 렌더링 시작
-        render(vao);
+        render();
 
         return true;
     } catch (error) {
@@ -112,11 +105,6 @@ async function main() {
         alert('프로그램 초기화에 실패했습니다.');
         return false;
     }
-}
-
-// WebGL 관련 초기화
-if (!initWebGL()) {
-    throw new Error('WebGL 초기화 실패');
 }
 
 // Call main function
@@ -128,7 +116,7 @@ if (!initWebGL()) {
 main().then(success => {
     if (!success) {
         console.log('프로그램을 종료합니다.');
-        return;  // 단순히 종료
+        return;
     }
     // 성공한 경우 여기서 추가 작업을 할 수 있음
 }).catch(error => {

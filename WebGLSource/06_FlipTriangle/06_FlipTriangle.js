@@ -10,9 +10,9 @@ import { Shader, readShaderFile } from '../util/shader.js';
 
 const canvas = document.getElementById('glCanvas');
 const gl = canvas.getContext('webgl2');
-let shader;
-let vao;
-let colorTag = "red";
+let shader;   // shader program
+let vao;      // vertex array object
+let colorTag = "red"; // triangle 초기 color는 red
 let verticalFlip = 1.0; // 1.0 for normal, -1.0 for vertical flip
 let textOverlay3; // for text output third line (see util.js)
 
@@ -37,7 +37,7 @@ function initWebGL() {
 async function initShader() {
     const vertexShaderSource = await readShaderFile('shVert.glsl');
     const fragmentShaderSource = await readShaderFile('shFrag.glsl');
-    return new Shader(gl, vertexShaderSource, fragmentShaderSource);
+    shader = new Shader(gl, vertexShaderSource, fragmentShaderSource);
 }
 
 function setupKeyboardEvents() {
@@ -65,26 +65,24 @@ function setupKeyboardEvents() {
     });
 }
 
-function setupBuffers(shader) {
+function setupBuffers() {
     const vertices = new Float32Array([
         -0.5, -0.5, 0.0,  // Bottom left
          0.5, -0.5, 0.0,  // Bottom right
          0.0,  0.5, 0.0   // Top center
     ]);
 
-    const vao = gl.createVertexArray();
+    vao = gl.createVertexArray();
     gl.bindVertexArray(vao);
 
-    const vertexBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+    const vbo = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
     gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
 
     shader.setAttribPointer('aPos', 3, gl.FLOAT, false, 0, 0);
-
-    return vao;
 }
 
-function render(vao, shader) {
+function render() {
     gl.clear(gl.COLOR_BUFFER_BIT);
 
     let color;
@@ -104,7 +102,7 @@ function render(vao, shader) {
     gl.bindVertexArray(vao);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
 
-    requestAnimationFrame(() => render(vao, shader));
+    requestAnimationFrame(() => render());
 }
 
 async function main() {
@@ -116,7 +114,7 @@ async function main() {
         }
 
         // 셰이더 초기화
-        shader = await initShader();
+        await initShader();
 
         // setup text overlay (see util.js)
         setupText(canvas, "r, g, b: change color", 1);
@@ -127,11 +125,11 @@ async function main() {
         setupKeyboardEvents();
         
         // 나머지 초기화
-        vao = setupBuffers(shader);
+        setupBuffers(shader);
         shader.use();
         
         // 렌더링 시작
-        render(vao, shader);
+        render();
 
         return true;
 
