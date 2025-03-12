@@ -76,9 +76,9 @@ function render() {
     gl.bindVertexArray(vao);
     gl.drawArrays(gl.TRIANGLES, 0, 3);  // 0: 첫번 vertex의 index, 3: vertex의 개수
 
-    // browser에게 animation을 위해 render(vao)를 호출하도록 요청
-    // 즉, 아래의 명령은 requestAnimationFrame(function() { render(vao); }) 와 같다. 
-    requestAnimationFrame(() => render(vao));
+    // browser에게 animation을 위해 render()를 호출하도록 요청
+    // 즉, 아래의 명령은 requestAnimationFrame(function() { render(); }) 와 같다. 
+    requestAnimationFrame(() => render());
 }
 
 // Main function
