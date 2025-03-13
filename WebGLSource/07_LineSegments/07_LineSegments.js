@@ -33,10 +33,10 @@ let axes = new Axes(gl, 0.85);
 // 3) 모든 DOM 요소가 생성된 후 발생
 // DOM: Document Object Model로 HTML의 tree 구조로 표현되는 object model 
 // 모든 code를 이 listener 안에 넣는 것은 mouse click event를 원활하게 처리하기 위해서임
+// mouse input을 사용할 때 이와 같이 main을 call 한다. 
 
-// mouse 쓸 때 main call 방법
 document.addEventListener('DOMContentLoaded', () => {
-    if (isInitialized) {
+    if (isInitialized) { // true인 경우는 main이 이미 실행되었다는 뜻이므로 다시 실행하지 않음
         console.log("Already initialized");
         return;
     }
@@ -58,21 +58,18 @@ function initWebGL() {
         return false;
     }
 
+    canvas.width = 700;
+    canvas.height = 700;
+
+    resizeAspectRatio(gl, canvas);
+
     gl.viewport(0, 0, canvas.width, canvas.height);
-    gl.clearColor(0.7, 0.8, 0.9, 1.0);
-    
+    gl.clearColor(0.1, 0.2, 0.3, 1.0);
+
     return true;
 }
 
-function setupCanvas() {
-    canvas.width = 700;
-    canvas.height = 700;
-    resizeAspectRatio(gl, canvas);
-    gl.viewport(0, 0, canvas.width, canvas.height);
-    gl.clearColor(0.1, 0.2, 0.3, 1.0);
-}
-
-function setupBuffers(shader) {
+function setupBuffers() {
     vao = gl.createVertexArray();
     gl.bindVertexArray(vao);
 
@@ -86,7 +83,7 @@ function setupBuffers(shader) {
 
 // 좌표 변환 함수: 캔버스 좌표를 WebGL 좌표로 변환
 // 캔버스 좌표: 캔버스 좌측 상단이 (0, 0), 우측 하단이 (canvas.width, canvas.height)
-// WebGL 좌표 (NDC): 캔버스 좌측 상단이 (-1, 1), 우측 하단이 (1, -1)
+// WebGL 좌표 (NDC): 캔버스 좌측 하단이 (-1, -1), 우측 상단이 (1, 1)
 function convertToWebGLCoordinates(x, y) {
     return [
         (x / canvas.width) * 2 - 1,
@@ -224,21 +221,21 @@ function render() {
 async function initShader() {
     const vertexShaderSource = await readShaderFile('shVert.glsl');
     const fragmentShaderSource = await readShaderFile('shFrag.glsl');
-    return new Shader(gl, vertexShaderSource, fragmentShaderSource);
+    shader = new Shader(gl, vertexShaderSource, fragmentShaderSource);
 }
 
 async function main() {
     try {
         if (!initWebGL()) {
             throw new Error('WebGL 초기화 실패');
+            return false; 
         }
 
         // 셰이더 초기화
-        shader = await initShader();
+        await initShader();
         
         // 나머지 초기화
-        setupCanvas();
-        setupBuffers(shader);
+        setupBuffers();
         shader.use();
 
         // 텍스트 초기화
@@ -252,6 +249,7 @@ async function main() {
         render();
 
         return true;
+        
     } catch (error) {
         console.error('Failed to initialize program:', error);
         alert('프로그램 초기화에 실패했습니다.');
