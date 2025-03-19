@@ -13,19 +13,19 @@ import { resizeAspectRatio, setupText, updateText, Axes } from '../util/util.js'
 import { Shader, readShaderFile } from '../util/shader.js';
 
 // Global variables
-let isInitialized = false; // global variable로 event listener가 등록되었는지 확인
 const canvas = document.getElementById('glCanvas');
 const gl = canvas.getContext('webgl2');
+let isInitialized = false;  // main이 실행되는 순간 true로 change
 let shader;
 let vao;
-let positionBuffer;
-let isDrawing = false;
-let startPoint = null;
-let tempEndPoint = null;
-let lines = [];
-let textOverlay;
-let textOverlay2;
-let axes = new Axes(gl, 0.85);
+let positionBuffer; // 2D position을 위한 VBO (Vertex Buffer Object)
+let isDrawing = false; // mouse button을 누르고 있는 동안 true로 change
+let startPoint = null;  // mouse button을 누른 위치
+let tempEndPoint = null; // mouse를 움직이는 동안의 위치
+let lines = []; // 그려진 선분들을 저장하는 array
+let textOverlay; // 1st line segment 정보 표시
+let textOverlay2; // 2nd line segment 정보 표시
+let axes = new Axes(gl, 0.85); // x, y axes 그려주는 object (see util.js)
 
 // DOMContentLoaded event
 // 1) 모든 HTML 문서가 완전히 load되고 parsing된 후 발생
@@ -76,7 +76,7 @@ function setupBuffers() {
     positionBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 
-    shader.setAttribPointer('a_position', 2, gl.FLOAT, false, 0, 0);
+    shader.setAttribPointer('a_position', 2, gl.FLOAT, false, 0, 0); // x, y 2D 좌표
 
     gl.bindVertexArray(null);
 }
@@ -86,8 +86,8 @@ function setupBuffers() {
 // WebGL 좌표 (NDC): 캔버스 좌측 하단이 (-1, -1), 우측 상단이 (1, 1)
 function convertToWebGLCoordinates(x, y) {
     return [
-        (x / canvas.width) * 2 - 1,
-        -((y / canvas.height) * 2 - 1)
+        (x / canvas.width) * 2 - 1,  // x/canvas.width 는 0 ~ 1 사이의 값, 이것을 * 2 - 1 하면 -1 ~ 1 사이의 값
+        -((y / canvas.height) * 2 - 1) // y canvas 좌표는 상하를 뒤집어 주어야 하므로 -1을 곱함
     ];
 }
 
@@ -122,18 +122,18 @@ function convertToWebGLCoordinates(x, y) {
 
 function setupMouseEvents() {
     function handleMouseDown(event) {
-        event.preventDefault(); // 존재할 수 있는 기본 동작을 방지
-        event.stopPropagation(); // event가 상위 요소로 전파되지 않도록 방지
+        event.preventDefault(); // 이미 존재할 수 있는 기본 동작을 방지
+        event.stopPropagation(); // event가 상위 요소 (div, body, html, etc.)로 전파되지 않도록 방지
 
-        const rect = canvas.getBoundingClientRect();
-        const x = event.clientX - rect.left;
-        const y = event.clientY - rect.top;
+        const rect = canvas.getBoundingClientRect(); // canvas를 나타내는 rect 객체를 반환
+        const x = event.clientX - rect.left;  // canvas 내 x 좌표
+        const y = event.clientY - rect.top;   // canvas 내 y 좌표
         
-        if (!isDrawing) { // 1번 또는 2번 선분을 그리고 있는 도중이 아닌 경우
+        if (!isDrawing) { // 1번 또는 2번 선분을 그리고 있는 도중이 아닌 경우 (즉, mouse down 상태가 아닌 경우)
             // 캔버스 좌표를 WebGL 좌표로 변환하여 선분의 시작점을 설정
             let [glX, glY] = convertToWebGLCoordinates(x, y);
             startPoint = [glX, glY];
-            isDrawing = true; // 이제 mouse button을 놓을 때까지 계속 true로 둠. 
+            isDrawing = true; // 이제 mouse button을 놓을 때까지 계속 true로 둠. 즉, mouse down 상태가 됨
         }
     }
 
@@ -144,7 +144,7 @@ function setupMouseEvents() {
             const y = event.clientY - rect.top;
             
             let [glX, glY] = convertToWebGLCoordinates(x, y);
-            tempEndPoint = [glX, glY];
+            tempEndPoint = [glX, glY]; // 임시 선분의 끝 point
             render();
         }
     }
@@ -196,7 +196,7 @@ function render() {
         if (num == 0) { // 첫 번째 선분인 경우, yellow
             shader.setVec4("u_color", [1.0, 1.0, 0.0, 1.0]);
         }
-        else { // num == 1 또는 2번째 선분인 경우, red
+        else { // num == 1 (2번째 선분인 경우), red
             shader.setVec4("u_color", [1.0, 0.0, 1.0, 1.0]);
         }
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(line), gl.STATIC_DRAW);
@@ -215,7 +215,7 @@ function render() {
     }
 
     // axes 그리기
-    axes.draw(mat4.create(), mat4.create());
+    axes.draw(mat4.create(), mat4.create()); // 두 개의 identity matrix를 parameter로 전달
 }
 
 async function initShader() {
