@@ -123,13 +123,14 @@ function convertToWebGLCoordinates(x, y) {
 function setupMouseEvents() {
     function handleMouseDown(event) {
         event.preventDefault(); // 이미 존재할 수 있는 기본 동작을 방지
-        event.stopPropagation(); // event가 상위 요소 (div, body, html, etc.)로 전파되지 않도록 방지
+        event.stopPropagation(); // event가 상위 요소 (div, body, html 등)으로 전파되지 않도록 방지
 
         const rect = canvas.getBoundingClientRect(); // canvas를 나타내는 rect 객체를 반환
         const x = event.clientX - rect.left;  // canvas 내 x 좌표
         const y = event.clientY - rect.top;   // canvas 내 y 좌표
         
-        if (!isDrawing) { // 1번 또는 2번 선분을 그리고 있는 도중이 아닌 경우 (즉, mouse down 상태가 아닌 경우)
+        if (!isDrawing && lines.length < 2) { 
+            // 1번 또는 2번 선분을 그리고 있는 도중이 아닌 경우 (즉, mouse down 상태가 아닌 경우)
             // 캔버스 좌표를 WebGL 좌표로 변환하여 선분의 시작점을 설정
             let [glX, glY] = convertToWebGLCoordinates(x, y);
             startPoint = [glX, glY];
