@@ -2,9 +2,9 @@
 14_TextureCoordinates.js
 
 - Viewing a 2D unit rectangle at origin with perspective projection
-- Applying image texture (../images/textures/rocket1.jpg) to the rectangle
+- Applying image texture (../images/textures/balloon1.jpg) to the rectangle
 -----------------------------------------------------------------------------------*/
-import { resizeAspectRatio, setupText, updateText, Axes } from '../util/util.js';
+import { resizeAspectRatio, setupText, updateText } from '../util/util.js';
 import { Shader, readShaderFile } from '../util/shader.js';
 import { Rectangle } from '../util/rectangle.js';
 import { loadTexture } from '../util/texture.js';
@@ -13,14 +13,11 @@ const canvas = document.getElementById('glCanvas');
 const gl = canvas.getContext('webgl2');
 let shader;
 let textOverlay; 
-
 let isInitialized = false;
-
 let viewMatrix = mat4.create();
 let projMatrix = mat4.create();
 let modelMatrix = mat4.create();
 let state = 0;  // whenever press the space bar, state is changed circularly: 0, 1, 2, 3, 0, 1, 2, 3, ...
-const axes = new Axes(gl, 1.5); // create an Axes object with the length of axis 1.5
 const texture = loadTexture(gl, true, '../images/textures/balloon1.jpg'); // see ../util/texture.js
 const rectangle = new Rectangle(gl, { texture: texture });
 
@@ -60,7 +57,7 @@ function initWebGL() {
 async function initShader() {
     const vertexShaderSource = await readShaderFile('shVert.glsl');
     const fragmentShaderSource = await readShaderFile('shFrag.glsl');
-    return new Shader(gl, vertexShaderSource, fragmentShaderSource);
+    shader = new Shader(gl, vertexShaderSource, fragmentShaderSource);
 }
 
 // 키보드 이벤트 리스너 추가
@@ -95,7 +92,7 @@ document.addEventListener('keydown', (e) => {
                 rectangle.texCoords[6] = 2.0; rectangle.texCoords[7] = -1.0;
                 break;
         }
-        setupText(canvas, "Press space bar. state = " + state);
+        updateText(textOverlay, "Press space bar. state = " + state);
         rectangle.initBuffers();
         render();
     }
@@ -115,9 +112,6 @@ function render() {
     shader.setMat4('u_projection', projMatrix);
     rectangle.draw();
 
-    // drawing the axes (using the axes's shader: see util.js)
-    //axes.draw(viewMatrix, projMatrix);
-
     // call the render function the next time for animation
     requestAnimationFrame(render);
 }
@@ -128,7 +122,7 @@ async function main() {
             throw new Error('WebGL 초기화 실패');
         }
         
-        shader = await initShader();
+        await initShader();
 
         // View transformation matrix (camera at (0,0,-2), invariant in the program)
         mat4.translate(viewMatrix, viewMatrix, vec3.fromValues(-0.5, -0.5, -2));
@@ -146,7 +140,7 @@ async function main() {
         gl.bindTexture(gl.TEXTURE_2D, texture);
         shader.setInt('u_texture', 0);
         
-        setupText(canvas, "Press space bar. state = " + state);
+        textOverlay = setupText(canvas, "Press space bar. state = " + state, 1);
 
         // call the render function the first time for animation
         requestAnimationFrame(render);

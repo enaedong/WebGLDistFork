@@ -22,8 +22,8 @@ let isInitialized = false;
 const canvas = document.getElementById('glCanvas');
 const gl = canvas.getContext('webgl2');
 let shader;
-let axesVAO;
-let cubeVAO;
+let vao;
+let axes;
 let finalTransform;
 let rotationAngle = 0;
 let currentTransformType = null;
@@ -64,34 +64,7 @@ function initWebGL() {
     return true;
 }
 
-function setupAxesBuffers(shader) {
-    axesVAO = gl.createVertexArray();
-    gl.bindVertexArray(axesVAO);
-
-    const axesVertices = new Float32Array([
-        -0.8, 0.0, 0.8, 0.0,  // x축
-        0.0, -0.8, 0.0, 0.8   // y축
-    ]);
-
-    const axesColors = new Float32Array([
-        1.0, 0.3, 0.0, 1.0, 1.0, 0.3, 0.0, 1.0,  // x축 색상
-        0.0, 1.0, 0.5, 1.0, 0.0, 1.0, 0.5, 1.0   // y축 색상
-    ]);
-
-    const positionBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, axesVertices, gl.STATIC_DRAW);
-    shader.setAttribPointer("a_position", 2, gl.FLOAT, false, 0, 0);
-
-    const colorBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, axesColors, gl.STATIC_DRAW);
-    shader.setAttribPointer("a_color", 4, gl.FLOAT, false, 0, 0);
-
-    gl.bindVertexArray(null);
-}
-
-function setupCubeBuffers(shader) {
+function setupBuffers() {
     const cubeVertices = new Float32Array([
         -0.25,  0.25,  // 좌상단
         -0.25, -0.25,  // 좌하단
@@ -111,19 +84,22 @@ function setupCubeBuffers(shader) {
         1.0, 0.0, 0.0, 1.0
     ]);
 
-    cubeVAO = gl.createVertexArray();
-    gl.bindVertexArray(cubeVAO);
+    vao = gl.createVertexArray();
+    gl.bindVertexArray(vao);
 
+    // VBO for position
     const positionBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, cubeVertices, gl.STATIC_DRAW);
     shader.setAttribPointer("a_position", 2, gl.FLOAT, false, 0, 0);
 
+    // VBO for color
     const colorBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, cubeColors, gl.STATIC_DRAW);
     shader.setAttribPointer("a_color", 4, gl.FLOAT, false, 0, 0);
 
+    // EBO
     const indexBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
@@ -141,13 +117,13 @@ function setupKeyboardEvents() {
             case '3': currentTransformType = 'RTS'; isAnimating = true; break;
             case '4': currentTransformType = 'RST'; isAnimating = true; break;
             case '5': currentTransformType = 'STR'; isAnimating = true; break;
-            case '6': currentTransformType = 'SRT'; isAnimating = true; break;1234
+            case '6': currentTransformType = 'SRT'; isAnimating = true; break;
             case '7':
                 currentTransformType = null;
                 isAnimating = false;
                 rotationAngle = 0;
                 finalTransform = mat4.create();
-                break;2
+                break;
         }
         if (currentTransformType) {
             updateText(textOverlay, event.key + ': ' + currentTransformType);
@@ -162,9 +138,9 @@ function getTransformMatrices() {
     const R = mat4.create();
     const S = mat4.create();
     
-    mat4.translate(T, T, [0.5, 0.5, 0]);
-    mat4.rotate(R, R, rotationAngle, [0, 0, 1]);
-    mat4.scale(S, S, [0.3, 0.3, 1]);
+    mat4.translate(T, T, [0.5, 0.5, 0]);  // translation by (0.5, 0.5)
+    mat4.rotate(R, R, rotationAngle, [0, 0, 1]); // rotation about z-axis
+    mat4.scale(S, S, [0.3, 0.3, 1]); // scale by (0.3, 0.3)
     
     return { T, R, S };
 }
@@ -183,7 +159,8 @@ function applyTransform(type) {
     };
 
     /*
-      array.forEach(...) : array 각 element에 대해 반복
+      type은 'TRS', 'TSR', 'RTS', 'RST', 'STR', 'SRT' 중 하나
+      array.forEach(...) : 각 type의 element T or R or S 에 대해 반복
     */
     if (transformOrder[type]) {
         transformOrder[type].forEach(matrix => {
@@ -195,36 +172,38 @@ function applyTransform(type) {
 function render() {
     gl.clear(gl.COLOR_BUFFER_BIT);
 
+    // draw axes
+    axes.draw(mat4.create(), mat4.create()); 
+
+    // draw cube
     shader.use();
-
-    // 축 그리기
-    shader.setMat4("u_transform", mat4.create());
-    gl.bindVertexArray(axesVAO);
-    gl.drawArrays(gl.LINES, 0, 4);
-
-    // 정사각형 그리기
     shader.setMat4("u_transform", finalTransform);
-    gl.bindVertexArray(cubeVAO);
+    gl.bindVertexArray(vao);
+    // gl.drawElements(mode, index_count, type, byte_offset);
     gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
 }
 
 function animate(currentTime) {
-    if (!lastTime) lastTime = currentTime;
+
+    if (!lastTime) lastTime = currentTime; // if lastTime == 0
+    // 이전 frame에서부터의 elapsed time (in seconds)
     const deltaTime = (currentTime - lastTime) / 1000;
     lastTime = currentTime;
 
     if (isAnimating && currentTransformType) {
-        rotationAngle += Math.PI * 0.5* deltaTime;
+        // 2초당 1회전, 즉, 1초당 180도 회전
+        rotationAngle += Math.PI * deltaTime;
         applyTransform(currentTransformType);
     }
     render();
+
     requestAnimationFrame(animate);
 }
 
 async function initShader() {
     const vertexShaderSource = await readShaderFile('shVert.glsl');
     const fragmentShaderSource = await readShaderFile('shFrag.glsl');
-    return new Shader(gl, vertexShaderSource, fragmentShaderSource);
+    shader = new Shader(gl, vertexShaderSource, fragmentShaderSource);
 }
 
 async function main() {
@@ -235,13 +214,16 @@ async function main() {
 
         finalTransform = mat4.create();
         
-        shader = await initShader();
-        setupAxesBuffers(shader);
-        setupCubeBuffers(shader);
+        await initShader();
+
+        setupBuffers();
+        axes = new Axes(gl, 0.8); 
+
         textOverlay = setupText(canvas, 'NO TRANSFORMATION', 1);
         setupText(canvas, 'press 1~7 to apply different order of transformations', 2);
+
         setupKeyboardEvents();
-        shader.use();
+
         return true;
     } catch (error) {
         console.error('Failed to initialize program:', error);

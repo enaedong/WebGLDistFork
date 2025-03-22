@@ -14,9 +14,7 @@ import { loadTexture } from '../util/texture.js';
 const canvas = document.getElementById('glCanvas');
 const gl = canvas.getContext('webgl2');
 let shader;
-
 let isInitialized = false;
-
 let viewMatrix = mat4.create();
 let projMatrix = mat4.create();
 let modelMatrix = mat4.create();
@@ -63,7 +61,7 @@ function initWebGL() {
 async function initShader() {
     const vertexShaderSource = await readShaderFile('shVert.glsl');
     const fragmentShaderSource = await readShaderFile('shFrag.glsl');
-    return new Shader(gl, vertexShaderSource, fragmentShaderSource);
+    shader = new Shader(gl, vertexShaderSource, fragmentShaderSource);
 }
 
 function render() {
@@ -96,7 +94,7 @@ async function main() {
             throw new Error('WebGL 초기화 실패');
         }
         
-        shader = await initShader();
+        await initShader();
 
         // View transformation matrix (camera at (0,0,-3), invariant in the program)
         mat4.translate(viewMatrix, viewMatrix, vec3.fromValues(0, 0, -3));

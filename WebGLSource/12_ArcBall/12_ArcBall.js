@@ -15,8 +15,6 @@ const canvas = document.getElementById('glCanvas');
 const gl = canvas.getContext('webgl2');
 let shader;
 let textOverlay; 
-let textOverlay2;
-let textOverlay3;
 let isInitialized = false;
 
 let viewMatrix = mat4.create();
@@ -88,7 +86,7 @@ function initWebGL() {
 async function initShader() {
     const vertexShaderSource = await readShaderFile('shVert.glsl');
     const fragmentShaderSource = await readShaderFile('shFrag.glsl');
-    return new Shader(gl, vertexShaderSource, fragmentShaderSource);
+    shader = new Shader(gl, vertexShaderSource, fragmentShaderSource);
 }
 
 function render() {
@@ -126,7 +124,7 @@ async function main() {
             throw new Error('WebGL initialization failed');
         }
         
-        shader = await initShader();
+        await initShader();
 
         // View transformation matrix (camera at (0,0,-initialDistance)
         // invariant in the program
@@ -142,8 +140,8 @@ async function main() {
         );
 
         textOverlay = setupText(canvas,"arcball mode: " + arcBallMode, 1);
-        textOverlay2 = setupText(canvas, "press 'a' to change arcball mode", 2);
-        textOverlay3 = setupText(canvas, "press 'r' to reset arcball", 3);
+        setupText(canvas, "press 'a' to change arcball mode", 2);
+        setupText(canvas, "press 'r' to reset arcball", 3);
         setupKeyboardEvents();
 
         // call the render function the first time for animation

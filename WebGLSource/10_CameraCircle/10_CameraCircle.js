@@ -64,7 +64,7 @@ function initWebGL() {
 async function initShader() {
     const vertexShaderSource = await readShaderFile('shVert.glsl');
     const fragmentShaderSource = await readShaderFile('shFrag.glsl');
-    return new Shader(gl, vertexShaderSource, fragmentShaderSource);
+    shader = new Shader(gl, vertexShaderSource, fragmentShaderSource);
 }
 
 function render() {
@@ -110,7 +110,7 @@ async function main() {
             throw new Error('WebGL initialization failed');
         }
         
-        shader = await initShader();
+        await initShader();
 
         // Projection transformation matrix
         mat4.perspective(

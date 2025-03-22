@@ -29,7 +29,7 @@ let projMatrix = mat4.create();
 let zRotSpeed = 60.0;  // z-axis rotation speed (degree/sec)
 let xRotSpeed = 45.0;  // x-axis rotation speed (degree/sec)
 const cube = new Cube(gl);
-const axes = new Axes(gl, 1.8); // create an Axes object with the length of axis 1.5
+const axes = new Axes(gl, 1.8); // create an Axes object (length = 1.8)
 
 document.addEventListener('DOMContentLoaded', () => {
     if (isInitialized) {
@@ -66,7 +66,7 @@ function initWebGL() {
 async function initShader() {
     const vertexShaderSource = await readShaderFile('shVert.glsl');
     const fragmentShaderSource = await readShaderFile('shFrag.glsl');
-    return new Shader(gl, vertexShaderSource, fragmentShaderSource);
+    shader = new Shader(gl, vertexShaderSource, fragmentShaderSource);
 }
 
 function render() {
@@ -106,7 +106,7 @@ async function main() {
             throw new Error('WebGL 초기화 실패');
         }
         
-        shader = await initShader();
+        await initShader();
 
         // View transformation matrix (move the cube to (0, 0, -4))
         mat4.translate(viewMatrix, viewMatrix, vec3.fromValues(0, 0, -4));
