@@ -66,10 +66,10 @@ function initWebGL() {
 
 function setupBuffers() {
     const cubeVertices = new Float32Array([
-        -0.25,  0.25,  // 좌상단
-        -0.25, -0.25,  // 좌하단
-         0.25, -0.25,  // 우하단
-         0.25,  0.25   // 우상단
+        -0.15,  0.15,  // 좌상단
+        -0.15, -0.15,  // 좌하단
+         0.15, -0.15,  // 우하단
+         0.15,  0.15   // 우상단
     ]);
 
     const indices = new Uint16Array([
@@ -186,7 +186,7 @@ function render() {
 function animate(currentTime) {
 
     if (!lastTime) lastTime = currentTime; // if lastTime == 0
-    // 이전 frame에서부터의 elapsed time (in seconds)
+    // deltaTime: 이전 frame에서부터의 elapsed time (in seconds)
     const deltaTime = (currentTime - lastTime) / 1000;
     lastTime = currentTime;
 
