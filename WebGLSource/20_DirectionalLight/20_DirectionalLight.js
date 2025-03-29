@@ -13,7 +13,6 @@
 ----------------------------------------------------------------------------------*/
 import { resizeAspectRatio, setupText, updateText, Axes } from '../util/util.js';
 import { Shader, readShaderFile } from '../util/shader.js';
-import { Cube } from '../util/cube.js';
 import { Arcball } from '../util/arcball.js';
 import { Cylinder } from '../util/cylinder.js';
 import { loadTexture } from '../util/texture.js';

@@ -58,7 +58,7 @@ function initWebGL() {
     canvas.height = 700;
     resizeAspectRatio(gl, canvas);
     gl.viewport(0, 0, canvas.width, canvas.height);
-    gl.clearColor(0.7, 0.8, 0.9, 1.0);
+    gl.clearColor(0.1, 0.2, 0.3, 1.0);
     
     return true;
 }
@@ -75,8 +75,9 @@ function render() {
     const elapsedTime = (currentTime - startTime) / 1000.0; // convert to second
 
     // clear canvas
-    gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+    // enable depth test for 3D rendering (for hidden surface removal)
     gl.enable(gl.DEPTH_TEST);
 
     // model transformation
@@ -109,6 +110,8 @@ async function main() {
         await initShader();
 
         // View transformation matrix (move the cube to (0, 0, -4))
+        // default camera is at the origin and looking at the infinite in the -z axis
+        // invariant in the program
         mat4.translate(viewMatrix, viewMatrix, vec3.fromValues(0, 0, -4));
 
         // Projection transformation matrix (invariant in the program)
@@ -117,7 +120,7 @@ async function main() {
             glMatrix.toRadian(60),  // field of view (fov, degree)
             canvas.width / canvas.height, // aspect ratio
             0.1, // near
-            100.0 // far
+            1000.0 // far
         );
 
         // starting time (global variable) for animation
