@@ -3,7 +3,6 @@
 
 - Viewing a 3D unit cube at origin with perspective projection
 - Rotating the cube by ArcBall interface (by left mouse button dragging)
-
 ---------------------------------------------------------------------------*/
 
 import { resizeAspectRatio, setupText, updateText, Axes } from '../util/util.js';
@@ -20,13 +19,14 @@ let isInitialized = false;
 let viewMatrix = mat4.create();
 let projMatrix = mat4.create();
 let modelMatrix = mat4.create();
-let initialDistance = 5.0; 
-let arcBallMode = 'CAMERA';     // 'CAMERA' or 'MODEL'
+
 const cube = new Cube(gl);
 const axes = new Axes(gl, 2.2); // create an Axes object with the length of axis 1.5
 
 // Arcball object: initial distance 5.0, rotation sensitivity 2.0, zoom sensitivity 0.0005
 // default of rotation sensitivity = 1.5, default of zoom sensitivity = 0.001
+let initialDistance = 5.0; 
+let arcBallMode = 'CAMERA';     // 'CAMERA' or 'MODEL'
 const arcball = new Arcball(canvas, initialDistance, { rotation: 2.0, zoom: 0.0005 });
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -49,10 +49,9 @@ document.addEventListener('DOMContentLoaded', () => {
 function setupKeyboardEvents() {
     document.addEventListener('keydown', (event) => {
         if (event.key == 'a') {
-            console.log("a key pressed");
+            // console.log("a key pressed");
             if (arcBallMode == 'CAMERA') {
                 arcBallMode = 'MODEL';
-
             }
             else {
                 arcBallMode = 'CAMERA';
@@ -126,8 +125,7 @@ async function main() {
         
         await initShader();
 
-        // View transformation matrix (camera at (0,0,-initialDistance)
-        // invariant in the program
+        // Initial view transformation matrix (camera at (0,0,-initialDistance)
         mat4.translate(viewMatrix, viewMatrix, vec3.fromValues(0, 0, -initialDistance));
 
         // Projection transformation matrix (invariant in the program)

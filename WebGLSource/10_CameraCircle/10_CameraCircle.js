@@ -8,7 +8,7 @@
 - The camera is always looking at the origin.
 ---------------------------------------------------------------------------*/
 
-import { resizeAspectRatio, setupText, updateText, Axes } from '../util/util.js';
+import { resizeAspectRatio, Axes } from '../util/util.js';
 import { Shader, readShaderFile } from '../util/shader.js';
 import { Cube } from '../util/cube.js';
 
@@ -68,15 +68,18 @@ async function initShader() {
 }
 
 function render() {
+
     const currentTime = Date.now();
+
     // deltaTime: elapsed time from the last frame
     const deltaTime = (currentTime - lastFrameTime) / 1000.0; // convert to second
+
     // elapsed time from the start time
     const elapsedTime = (currentTime - startTime) / 1000.0; // convert to second
+
     lastFrameTime = currentTime;
 
     // Clear canvas
-    gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     gl.enable(gl.DEPTH_TEST);
 

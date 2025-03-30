@@ -108,6 +108,10 @@ function updateCamera(e) {
     if (pitch < -89.0) pitch = -89.0;
 
     // camera direction calculation
+    // sperical coordinates (r, theta, phi) = (r, yaw, pitch) = (sx, sy, sz)
+    // sx = cos(yaw) * cos(pitch)
+    // sy = sin(pitch)
+    // sz = sin(yaw) * cos(pitch)
     const direction = vec3.create();
     direction[0] = Math.cos(glMatrix.toRadian(yaw)) * Math.cos(glMatrix.toRadian(pitch));
     direction[1] = Math.sin(glMatrix.toRadian(pitch));
