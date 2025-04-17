@@ -1,6 +1,18 @@
+
 // main three.module.js library
 import * as THREE from 'three';  
+
 // addons: OrbitControls (jsm/controls), Stats (jsm/libs), GUI (jsm/libs)
+//
+// module default export & import (library에서 export하는 것이 하나뿐인 경우):
+//             export default function myFunction() { ... }
+//             import myFunction from './myModule'; // 중괄호 없이 import
+//
+// module named export & import:
+//             export myFunction() { ... };
+//             export const myVariable = 42;
+//             import { myFunction, myVariable } from './myModule'; // 중괄호 사용
+
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import Stats from 'three/addons/libs/stats.module.js';
 import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
@@ -20,7 +32,7 @@ camera.position.z = 2;
 // add camera to the scene
 scene.add(camera);
 
-// setup the renderer and attch to canvas
+// setup the renderer
 // antialias = true: 렌더링 결과가 부드러워짐
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 
@@ -85,17 +97,29 @@ dirLight.position.set(5, 12, 8);
 dirLight.castShadow = true;  // 이 light가 shadow를 만들어 낼 것임
 scene.add(dirLight);
 
-// create a cube and torus knot and add them to the scene
+// create a cube and add it to the scene
+// BoxGeometry: width, height, depth의 default는 1
+//            : default center position = (0, 0, 0)
 const cubeGeometry = new THREE.BoxGeometry();
+
 // MeshLambertMaterial: ambient + diffuse
 const cubeMaterial = new THREE.MeshLambertMaterial({ color:0x990000 });
+
 // 하나의 mesh는 geometry와 material로 이루어짐
 const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
 cube.position.x = -1;
-cube.castShadow = true;
+cube.castShadow = true; // light를 받을 떄 shadow를 만들어 냄
 scene.add(cube);
 
+// TorusKnotGeometry(radius, tube, tubularSegment, radialSegments, p, q)
+//                 : radius (default = 1), 전체 torus의 반지름
+//                 : tube (default = 0.4), torus tube의 반지름
+//                 : tubularSegments (default = 64), 전체 torus를 나누는 horizontal segment의 개수
+//                 : radialSegments (default = 8), torus tube를 나누는 vertical segment의 개수
+//                 : p (default = 2), torus가 만드는 원 모양의 감긴 개수
+//                 : q (default = 3), torus의 큰 circle을 휘감는 개수
 const torusKnotGeometry = new THREE.TorusKnotGeometry(0.5, 0.2, 100, 100);
+
 // MeshPhongMaterial: ambient + diffuse + specular
 const torusKnotMat = new THREE.MeshPhongMaterial({
 	color: 0x00ff88,
@@ -117,23 +141,32 @@ scene.add(plane);
 let step = 0;
 
 function animate() {
-    requestAnimationFrame(animate);
+
+    // stats와 orbitControls는 매 frame마다 update 해줘야 함
     stats.update();
     orbitControls.update();
 
     step += 0.02;
-    cube.position.x = 4 * Math.cos(step);
-    cube.position.y = 4 * Math.abs(Math.sin(step));
+    cube.position.x = 4 * Math.cos(step);  // x = -4 ~ 4 사이를 왕복
+    cube.position.y = 4 * Math.abs(Math.sin(step));  // y = 0 ~ 4 사이를 왕복
 
+    // cube의 rotation transformation (model transformation)
+    // 각각 x, y, z 축을 기준으로 하는 rotation angle (radian)
     cube.rotation.x += props.cubeRotSpeed;
     cube.rotation.y += props.cubeRotSpeed;
     cube.rotation.z += props.cubeRotSpeed;
 
+    // torusKnot의 rotation transformation
+    // 각각 x, y, z 축을 기준으로 하는 rotation angle (radian)
     torusKnotMesh.rotation.x -= props.torusRotSpeed;
     torusKnotMesh.rotation.y += props.torusRotSpeed;
     torusKnotMesh.rotation.z -= props.torusRotSpeed;
 
+    // 모든 transformation 적용 후, renderer에 렌더링을 한번 해 줘야 함
     renderer.render(scene, camera);
+
+    // 다음 frame을 위해 requestAnimationFrame 호출 
+    requestAnimationFrame(animate);
 }
 
 animate();
