@@ -6,7 +6,7 @@
 - press key 'a' to switch between camera and model rotation modes in ArcBall interface
 - Applying specular lighting to the cube
 ---------------------------------------------------------------------------*/
-import { resizeAspectRatio, setupText, updateText, Axes } from '../util/util.js';
+import { resizeAspectRatio, setupText, updateText} from '../util/util.js';
 import { Shader, readShaderFile } from '../util/shader.js';
 import { Cube } from '../util/cube.js';
 import { Arcball } from '../util/arcball.js';
@@ -26,11 +26,10 @@ let arcBallMode = 'CAMERA';     // 'CAMERA' or 'MODEL'
 
 const cube = new Cube(gl);
 const lamp = new Cube(gl);
-const axes = new Axes(gl, 1.5); // create an Axes object with the length of axis 1.5
 
-const cameraPos = vec3.fromValues(0, 0, -3);
+const cameraPos = vec3.fromValues(0, 0, 3);
 const lightPos = vec3.fromValues(1.0, 1.5, 1.0);
-const lightSize = vec3.fromValues(0.1, 0.1, 0.1);
+const lampSize = vec3.fromValues(0.1, 0.1, 0.1);
 
 // Arcball object: initial distance 5.0, rotation sensitivity 2.0, zoom sensitivity 0.0005
 // default of rotation sensitivity = 1.5, default of zoom sensitivity = 0.001
@@ -126,9 +125,6 @@ function render() {
     lampShader.setMat4('u_view', viewMatrix);
     lamp.draw(lampShader);
 
-    // drawing the axes (using the axes's shader: see util.js)
-    axes.draw(viewMatrix, projMatrix);
-
     // call the render function the next time for animation
     requestAnimationFrame(render);
 }
@@ -140,7 +136,12 @@ async function main() {
         }
         
         // View transformation matrix (camera at cameraPos, invariant in the program)
-        mat4.translate(viewMatrix, viewMatrix, cameraPos);
+        mat4.lookAt(
+            viewMatrix,
+            cameraPos, // camera position
+            vec3.fromValues(0.0, 0.0, 0.0), // look at point
+            vec3.fromValues(0.0, 1.0, 0.0)  // up vector
+        );
 
         // Projection transformation matrix (invariant in the program)
         mat4.perspective(
@@ -172,10 +173,10 @@ async function main() {
         lampShader.setMat4("u_projection", projMatrix);
         mat4.identity(lampModelMatrix);
         mat4.translate(lampModelMatrix, lampModelMatrix, lightPos);
-        mat4.scale(lampModelMatrix, lampModelMatrix, lightSize);
+        mat4.scale(lampModelMatrix, lampModelMatrix, lampSize);
         lampShader.setMat4('u_model', lampModelMatrix);
 
-        setupText(canvas, "AMBIENt + DIFFUSE + SPECULAR", 1);
+        setupText(canvas, "AMBIENT + DIFFUSE + SPECULAR", 1);
         textOverlay2 = setupText(canvas, "arcball mode: " + arcBallMode, 2);
         setupText(canvas, "press 'a' to change arcball mode", 3);
         setupText(canvas, "press 'r' to reset arcball", 4);

@@ -44,7 +44,7 @@ const cubeScale = [
 const axes = new Axes(gl, 2.0); // create an Axes object with the length of axis 1.5
 
 const diffuseMap = loadTexture(gl, true, '../images/textures/woodWall3.png');
-const cameraPos = vec3.fromValues(0, 0, -3);
+const cameraPos = vec3.fromValues(0, 0, 3);
 
 const lampPoint = [new Cube(gl), new Cube(gl), new Cube(gl)]; // cube lamp for 3 point lights
 const lampSpot = new Cube(gl); // cube lamp for spotLight    
@@ -174,7 +174,12 @@ async function main() {
         }
         
         // View transformation matrix (camera at cameraPos, invariant in the program)
-        mat4.translate(viewMatrix, viewMatrix, cameraPos);
+        mat4.lookAt(
+            viewMatrix, 
+            cameraPos, 
+            vec3.fromValues(0, 0, 0), 
+            vec3.fromValues(0, 1, 0)
+        );
 
         // Projection transformation matrix (invariant in the program)
         mat4.perspective(

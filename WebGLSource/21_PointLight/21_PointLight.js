@@ -23,7 +23,7 @@ let modelMatrix = mat4.create();
 let lampModelMatrix = mat4.create();
 
 const cylinder = new Cylinder(gl, 32);
-let zPos = -3.0;
+let zPos = 3.0;
 
 const lamp = new Cube(gl);
 const texture = loadTexture(gl, true, '../images/textures/sunrise.jpg');
@@ -80,7 +80,7 @@ async function initLampShader() {
 function render() {
     const currentTime = Date.now();
 
-    zPos = 2.5 * Math.sin(currentTime * 0.001) - 3.0;
+    zPos = -2.0 - 2.0 * Math.sin(currentTime * 0.001);
     mat4.translate(modelMatrix, mat4.create(), vec3.fromValues(0, 0, zPos));
 
     // clear canvas
@@ -110,7 +110,12 @@ async function main() {
         }
         
         // View transformation matrix (camera at cameraPos, invariant in the program)
-        mat4.translate(viewMatrix, viewMatrix, cameraPos);
+        mat4.lookAt(
+            viewMatrix, 
+            cameraPos, 
+            vec3.fromValues(0, 0, 0), 
+            vec3.fromValues(0, 1, 0)
+        );
 
         // Projection transformation matrix (invariant in the program)
         mat4.perspective(

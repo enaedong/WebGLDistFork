@@ -37,8 +37,8 @@ const lamp = new Cube(gl);
 const axes = new Axes(gl, 1.5); // create an Axes object with the length of axis 1.5
 const texture = loadTexture(gl, true, '../images/textures/sunrise.jpg');
 
-const cameraPos = vec3.fromValues(0, 0, -3);
-const lightSize = vec3.fromValues(0.1, 0.1, 0.1);
+const cameraPos = vec3.fromValues(0, 0, 3);
+const lampSize = vec3.fromValues(0.1, 0.1, 0.1);
 const lightPos = vec3.fromValues(1.0, 0.5, 0.5);
 const shininess = 32.0;
 
@@ -109,10 +109,6 @@ function initWebGL() {
     resizeAspectRatio(gl, canvas);
     gl.viewport(0, 0, canvas.width, canvas.height);
     gl.clearColor(0.1, 0.1, 0.1, 1.0);
-
-    // cylinder의 바깥쪽 face만 rendering 되도록 함
-    //gl.enable(gl.CULL_FACE);
-    //gl.cullFace(gl.BACK);
     
     return true;
 }
@@ -168,7 +164,13 @@ async function main() {
         }
         
         // View transformation matrix (camera at cameraPos, invariant in the program)
-        mat4.translate(viewMatrix, viewMatrix, cameraPos);
+        //mat4.translate(viewMatrix, viewMatrix, cameraPos);
+        mat4.lookAt(
+            viewMatrix, 
+            cameraPos, 
+            vec3.fromValues(0, 0, 0), 
+            vec3.fromValues(0, 1, 0)
+        );
 
         // Projection transformation matrix (invariant in the program)
         mat4.perspective(
@@ -197,7 +199,7 @@ async function main() {
         lampShader.use();
         lampShader.setMat4("u_projection", projMatrix);
         mat4.translate(lampModelMatrix, lampModelMatrix, lightPos);
-        mat4.scale(lampModelMatrix, lampModelMatrix, lightSize);
+        mat4.scale(lampModelMatrix, lampModelMatrix, lampSize);
         lampShader.setMat4('u_model', lampModelMatrix);
 
         setupText(canvas, "Diffuse Map", 1); 

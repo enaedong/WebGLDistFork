@@ -35,7 +35,7 @@ const lamp = new Cube(gl);
 const axes = new Axes(gl, 2.0); // create an Axes object with the length of axis 1.5
 const texture = loadTexture(gl, true, '../images/textures/sunrise.jpg');
 
-const cameraPos = vec3.fromValues(0, 0, -3);
+const cameraPos = vec3.fromValues(0, 0, 3);
 const lightSize = vec3.fromValues(0.1, 0.1, 0.1);
 const lightPos = vec3.fromValues(1.5, 0.0, 1.0);
 const shininess = 16.0;
@@ -151,7 +151,12 @@ async function main() {
         }
         
         // View transformation matrix (camera at cameraPos, invariant in the program)
-        mat4.translate(viewMatrix, viewMatrix, cameraPos);
+        mat4.lookAt(
+            viewMatrix, 
+            cameraPos, 
+            vec3.fromValues(0, 0, 0), 
+            vec3.fromValues(0, 1, 0)
+        );
 
         // Projection transformation matrix (invariant in the program)
         mat4.perspective(

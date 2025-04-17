@@ -10,7 +10,7 @@
     - 'f' to switch to flat shading
 - Applying Diffuse & Specular reflection using Flat/Smooth shading to the cylinder
 ----------------------------------------------------------------------------------*/
-import { resizeAspectRatio, setupText, updateText, Axes } from '../util/util.js';
+import { resizeAspectRatio, setupText, updateText} from '../util/util.js';
 import { Shader, readShaderFile } from '../util/shader.js';
 import { Cube } from '../util/cube.js';
 import { Arcball } from '../util/arcball.js';
@@ -33,9 +33,8 @@ let shadingMode = 'SMOOTH';       // 'FLAT' or 'SMOOTH'
 
 const cylinder = new Cylinder(gl, 32);
 const lamp = new Cube(gl);
-const axes = new Axes(gl, 1.5); // create an Axes object with the length of axis 1.5
 
-const cameraPos = vec3.fromValues(0, 0, -3);
+const cameraPos = vec3.fromValues(0, 0, 3);
 const lightPos = vec3.fromValues(1.0, 0.7, 1.0);
 const lightSize = vec3.fromValues(0.1, 0.1, 0.1);
 
@@ -146,9 +145,6 @@ function render() {
     lampShader.setMat4('u_view', viewMatrix);
     lamp.draw(lampShader);
 
-    // drawing the axes (using the axes's shader: see util.js)
-    axes.draw(viewMatrix, projMatrix);
-
     // call the render function the next time for animation
     requestAnimationFrame(render);
 }
@@ -160,7 +156,12 @@ async function main() {
         }
         
         // View transformation matrix (camera at cameraPos, invariant in the program)
-        mat4.translate(viewMatrix, viewMatrix, cameraPos);
+        mat4.lookAt(
+            viewMatrix,
+            cameraPos, // camera position
+            vec3.fromValues(0, 0, 0), // look at point
+            vec3.fromValues(0, 1, 0)  // up vector
+        );
 
         // Projection transformation matrix (invariant in the program)
         mat4.perspective(

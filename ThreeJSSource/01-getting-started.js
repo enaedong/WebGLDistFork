@@ -5,11 +5,9 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import Stats from 'three/addons/libs/stats.module.js';
 import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 
+// main scene
 const scene = new THREE.Scene();
-scene.backgroundColor = 0xffffff;
-// fog 효과, camera로 부터 0.0025 거리에서는 fog가 없고
-// 거리 50에서는 어떤 object든 fog (white color)에 둘러싸여 보이지 않음
-//scene.fog = new THREE.Fog(0xffffff, 0.0025, 50); 
+scene.backgroundColor = 0xffffff;  // white background
 
 // Perspective camera: fov, aspect ratio, near, far
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
@@ -32,7 +30,7 @@ const renderer = new THREE.WebGLRenderer({ antialias: true });
 // LinearColorSpace: 모든 색상을 선형으로 보이게 함
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 
-renderer.shadowMap.enabled = true; // scene에서 shadow를 보이게 할 겁니다. 
+renderer.shadowMap.enabled = true; // scene에서 shadow를 보이게
 
 // shadowMap의 종류
 // BasicShadowMap: 가장 기본적인 shadow map, 쉽고 빠르지만 부드럽지 않음
