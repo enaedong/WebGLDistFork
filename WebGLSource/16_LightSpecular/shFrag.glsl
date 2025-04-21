@@ -37,7 +37,7 @@ void main() {
     
     // specular
     vec3 viewDir = normalize(u_viewPos - fragPos);
-    vec3 reflectDir = reflect(-lightDir, norm);
+    vec3 reflectDir = reflect(-lightDir, norm); // -lightDir: light에서 fragPos로 입사하는 방향
 
     float spec = 0.0;
     if (dotNormLight > 0.0) {
