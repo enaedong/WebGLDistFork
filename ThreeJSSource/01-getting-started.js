@@ -1,3 +1,23 @@
+// 01-getting-started.js
+// - import add-ons
+// - default export vs named export
+// - scene, background
+// - camera, PerspectiveCamera
+// - Setting a position
+// - renderer: antialiasing, outputColorSpace, enabling shadowMap, shadowMap type, 
+// - renderer: setting size, setting clearColor, append renderer to html document
+// - stats object
+// - orbitControls object: damping
+// - GUI value input
+// - resize event listener
+// - axes Helper
+// - ambient light
+// - directional light, how to change the target of directional light, casting shadow
+// - Mesh = geometry + material
+// - cubeGeometry, torusKnotGeometry, planeGeometry, casting shadows, receiving shadows
+// - MeshLambertMaterial, MeshPhongMaterial
+// - rotation transformation
+// - requestAnimationFrame
 
 // main three.module.js library
 import * as THREE from 'three';  
@@ -64,7 +84,8 @@ document.body.appendChild(stats.dom);
 
 // add OrbitControls: arcball-like camera control
 const orbitControls = new OrbitControls(camera, renderer.domElement);
-orbitControls.enableDamping = true;
+orbitControls.enableDamping = true; // 관성효과, 바로 멈추지 않고 부드럽게 멈춤
+orbitControls.dampingFactor = 0.25; // 감속 정도, 크면 더 빨리 감속, default = 0.05
 
 // add GUI: 간단한 user interface를 제작 가능
 // 사용법은 https://lil-gui.georgealways.com/ 
@@ -87,15 +108,32 @@ function onResize() { // resize handler
     renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
+// axes helper: x, y, z 축을 보여줌
+const axesHelper = new THREE.AxesHelper(10); // 10 unit 길이의 축을 보여줌
+scene.add(axesHelper);
+
 // add ambient light
 const ambientLight = new THREE.AmbientLight(0x333333);
 scene.add(ambientLight);
 
 // add directional light
 const dirLight = new THREE.DirectionalLight(0xffffff);
-dirLight.position.set(5, 12, 8);
+dirLight.position.set(5, 12, 8); // 여기서 부터 (0, 0, 0) 방향으로 light ray 방향
 dirLight.castShadow = true;  // 이 light가 shadow를 만들어 낼 것임
 scene.add(dirLight);
+
+//----- Directional light의 target 위치를 바꾸기 ------------
+//const light = new THREE.DirectionalLight(0xffffff, 1);
+//light.position.set(10, 10, 10); // 광원이 있는 위치
+//
+// 타겟 객체 생성
+//const targetObject = new THREE.Object3D();
+//targetObject.position.set(5, 0, 0); // 타겟 위치 지정
+//scene.add(targetObject);
+//
+// 빛의 방향 지정
+//light.target = targetObject;
+//scene.add(light);
 
 // create a cube and add it to the scene
 // BoxGeometry: width, height, depth의 default는 1
@@ -112,6 +150,7 @@ cube.castShadow = true; // light를 받을 떄 shadow를 만들어 냄
 scene.add(cube);
 
 // TorusKnotGeometry(radius, tube, tubularSegment, radialSegments, p, q)
+// Threejs.org의 manual 참고 할 것
 //                 : radius (default = 1), 전체 torus의 반지름
 //                 : tube (default = 0.4), torus tube의 반지름
 //                 : tubularSegments (default = 64), 전체 torus를 나누는 horizontal segment의 개수

@@ -1,3 +1,8 @@
+// 02-foggy-cubes.js
+// - Fog, SpotLight
+// - GUI folders, GUI buttons, GUI output
+// - Children of the scene
+
 import * as THREE from 'three';  
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import Stats from 'three/addons/libs/stats.module.js';
@@ -5,7 +10,8 @@ import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 
 
 const scene = new THREE.Scene();
-scene.fog = new THREE.Fog(0xaaaaaa, 30, 100);
+// 안개 (fog) 효과 추가
+scene.fog = new THREE.Fog(0xaaaaaa, 30, 100); // color, near, far
 
 const renderer = new THREE.WebGLRenderer();
 renderer.setClearColor(0xffffff); 
@@ -32,6 +38,9 @@ function onResize() { // resize handler
     renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
+const axesHelper = new THREE.AxesHelper(20);
+scene.add(axesHelper);
+
 // create the ground plane
 // PlaneGeometry: width, height, widthSegments, heightSegments
 const planeGeometry = new THREE.PlaneGeometry(60, 40, 1, 1);
@@ -48,14 +57,16 @@ const ambientLight = new THREE.AmbientLight(0x222222, 0.8);
 scene.add(ambientLight);
 
 // SpotLight: color, intensity, 
-// distance (max range of light), angle (radian), 
-// penumbra (angle중에 soft edge의 비율 (%)), decay
+// distance (max range of light, attenuation의 범위)
+// angle (radian)
+// penumbra (angle중에 soft edge의 비율 (%))
+// decay: 감쇠 type, 1 (linear), 2 (quadratic, 자연광), 3 (cubic)
 const spotLight = new THREE.SpotLight(0xffffff, 5, 100);
 spotLight.position.set(-10, 60, 0);
 spotLight.castShadow = true;
 spotLight.angle = Math.PI / 8;
 spotLight.penumbra = 0;
-spotLight.decay = 0.5;
+spotLight.decay = 0.5; 
 scene.add(spotLight);
 
 // add directional light
@@ -74,10 +85,11 @@ const folder1Params = {
 folder1.add(folder1Params, 'rotationSpeed', 0, 0.5);
 const folder2 = gui.addFolder('Cube Parameters');
 const folder2Params = {
-    addCube: function() {
-        const cubeSize = Math.ceil((Math.random() * 3));
+    addCube: function() { // addCube button press action
+        const cubeSize = Math.ceil((Math.random() * 3)); // 1, 2, 3 중 하나
         const cubeGeometry = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
-        const randomColor = Math.floor(Math.random() * 0xffffff); // integer로 만들어 주어야 함
+        // Math.floor: integer로 만들어 주어야 함
+        const randomColor = Math.floor(Math.random() * 0xffffff); 
         const cubeMaterial = new THREE.MeshPhongMaterial({
             color: randomColor,
             shininess: 30
@@ -86,17 +98,19 @@ const folder2Params = {
         cube.castShadow = true;
     
         // position the cube randomly in the scene
+        // planeGeometry: width = 60, height = 40 으로 생성되어 있음
+        // planeGeometry.parameters.width: 이미 생성된 geometry의 attribute를 access
         cube.position.x = -30 + Math.round((Math.random() * planeGeometry.parameters.width));
         cube.position.y = Math.round((Math.random() * 5));
         cube.position.z = -20 + Math.round((Math.random() * planeGeometry.parameters.height));
     
         // add the cube to the scene
         scene.add(cube);
-        folder2Params.numberOfObjects = scene.children.length;
+        folder2Params.numberOfObjects = scene.children.length; // scene에 add된 cube의 개수
         // GUI 컨트롤러 업데이트
         numObjects.updateDisplay();
     },
-    removeCube: function() {
+    removeCube: function() { // removeCube button press action
         const allChildren = scene.children;
         const lastObject = allChildren[allChildren.length - 1];
         if (lastObject instanceof THREE.Mesh) {
@@ -107,11 +121,11 @@ const folder2Params = {
             numObjects.updateDisplay();
         }
     },
-    outputObjects: function() {
+    outputObjects: function() { // outputObjects button press action
         console.log(scene.children);
     },
     // 시작할 때 scene.children.length는 4 (plane, ambientLight, spotLight, directionalLight)
-    numberOfObjects: scene.children.length 
+    numberOfObjects: scene.children.length  // 아래의 numberOfObjects의 개수를 update해 줌
 };
 
 folder2.add(folder2Params, 'addCube');
@@ -132,8 +146,8 @@ function render() {
         }
     });
 
-    requestAnimationFrame(render);
     renderer.render(scene, camera);
+    requestAnimationFrame(render);
 }
 
 render();

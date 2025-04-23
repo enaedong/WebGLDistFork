@@ -1,3 +1,8 @@
+// 07-spot-light.js
+// - SpotLightHelper
+// - Spotlight penumbra
+// - spotlight target
+
 import * as THREE from 'three';  
 import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 import { initStats, initRenderer, initCamera, initOrbitControls, addDefaultCubeAndSphere, addGroundPlane } from './util.js';
@@ -84,7 +89,7 @@ function render() {
       const pivot = 14;
       sphereLightMesh.position.x = (invert * (sphereLightMesh.position.x - pivot)) + pivot;
     }
-
+    // sphereLightMesh의 position을 spotLight의 position으로 설정
     spotLight.position.copy(sphereLightMesh.position);
   }
 
@@ -111,6 +116,7 @@ function setupControls() {
   };
 
   const gui = new GUI();
+  // color picker GUI
   gui.addColor(controls, 'ambientColor').onChange(function (e) {
     ambientLight.color = new THREE.Color(e);
   });

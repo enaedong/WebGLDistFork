@@ -1,3 +1,7 @@
+// 06-ambient-light.js
+// - SpotLightHelper
+// - AmbientColor: intensity and color
+
 import * as THREE from 'three';  
 import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 import { initStats, initRenderer, initCamera, initOrbitControls, addHouseAndTree } from './util.js';
@@ -30,6 +34,7 @@ spotLight.shadow.camera.far = 200;
 scene.add(spotLight);
 scene.add(spotLight.target);  // target도 scene에 추가
 
+// SpotLightHelper는 spotlight의 위치와 방향을 시각적으로 보여줌
 const spotLightHelper = new THREE.SpotLightHelper(spotLight);
 scene.add(spotLightHelper);
 
@@ -40,7 +45,8 @@ addHouseAndTree(scene)
 const orbitControls = initOrbitControls(camera, renderer);
 
 // add gui controls
-const guiControls = setupGUIControls();
+//const guiControls = 
+setupGUIControls();
 
 // call the render function
 render();

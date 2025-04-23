@@ -1,3 +1,11 @@
+// 03-geometries.js
+// - DirectionalLightHelper
+// - CameraHelper for shadow range
+// - ConvexGeometry, LatheGeometry, OctahedronGeometry, ParametricGeometry
+// - TetrahedronGeometry, TorusGeometry
+// - MeshStandardMaterial, MeshBasicMaterial
+// - MultiMaterialObject
+
 import * as THREE from 'three';  
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import Stats from 'three/addons/libs/stats.module.js';
@@ -9,7 +17,6 @@ import * as SceneUtils from 'three/addons/utils/SceneUtils.js';
 const scene = new THREE.Scene();
 
 const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-// 아래: camera.position.set(-50, 30, 20); 으로 하는 것이 더 좋음
 camera.position.x = -50;
 camera.position.y = 30;
 camera.position.z = 20;
@@ -25,23 +32,18 @@ document.body.appendChild(renderer.domElement);
 const stats = new Stats();
 document.body.appendChild(stats.dom);
 
-// arcball-like user interface
 const orbitControls = new OrbitControls(camera, renderer.domElement);
 orbitControls.enableDamping = true;
 
-// create the ground plane
+// ground plane
 const planeGeometry = new THREE.PlaneGeometry(60, 40, 1, 1);
 const planeMaterial = new THREE.MeshLambertMaterial({color: 0xffffff});
 const plane = new THREE.Mesh(planeGeometry, planeMaterial);
 plane.receiveShadow = true;
-
-// rotate and position the plane
 plane.rotation.x = -0.5 * Math.PI;
 plane.position.x = 0;
 plane.position.y = 0;
 plane.position.z = 0;
-
-// add the plane to the scene
 scene.add(plane);
 
 // add subtle ambient lighting
@@ -54,18 +56,24 @@ directionalLight.position.set(-10, 40, 50);
 directionalLight.castShadow = true;
 
 // shadow 설정 추가
-directionalLight.shadow.camera.left = -50;  // 그림자 생성 구간 설정
-directionalLight.shadow.camera.right = 50;
-directionalLight.shadow.camera.top = 50;
-directionalLight.shadow.camera.bottom = -50;
-directionalLight.shadow.camera.near = 0.1;
-directionalLight.shadow.camera.far = 200;
+directionalLight.shadow.camera.left = -30;  // 그림자 생성 구간 설정
+directionalLight.shadow.camera.right = 30;
+directionalLight.shadow.camera.top = 30;
+directionalLight.shadow.camera.bottom = -30;
+directionalLight.shadow.camera.near = 30;
+directionalLight.shadow.camera.far = 100;
 directionalLight.shadow.mapSize.width = 2048;  // 그림자 해상도 증가
 directionalLight.shadow.mapSize.height = 2048;  // 그림자 해상도 증가
-
 scene.add(directionalLight);
-const directionalLightHelper = new THREE.DirectionalLightHelper(directionalLight, 1);
-//scene.add(directionalLightHelper);
+
+// DirectionalLightHelper: size: light의 크기 (default = 1) 
+const directionalLightHelper = new THREE.DirectionalLightHelper(directionalLight, 3);
+scene.add(directionalLightHelper);
+
+// Shadow 범위 확인을 위한 CameraHelper
+const cameraHelper = new THREE.CameraHelper(directionalLight.shadow.camera);
+cameraHelper.visible = true;
+scene.add(cameraHelper);
 
 // 보조 directional light 추가
 const dirLight2 = new THREE.DirectionalLight(0xffffff, 0.3);
@@ -106,10 +114,10 @@ function addGeometries(scene) {
     ];
     geoms.push(new ConvexGeometry(points));
 
-    // create a lathe geometry
+    // create a lathe (레이드) geometry
     // 1) Profile point array 생성
-    // Vector2 array로 profile curve를 정의
-    // x 좌표: curve의 반지름, y 좌표: curve의 높이
+    //    Vector2 (2D) array로 profile curve를 정의
+    //    x 좌표: curve의 반지름, y 좌표: curve의 높이
     const lathePoints = [];
     for (let i = 0; i < 10; i++) {
       const x = Math.sin(i * 0.2) * 2 + 2; // radius: 2 ~ 4 구간에서 변화
@@ -146,8 +154,8 @@ function addGeometries(scene) {
             new THREE.MeshLambertMaterial({
                 color: Math.random() * 0xffffff
             }),
-            new THREE.MeshBasicMaterial({
-                color: 0x000000,
+            new THREE.MeshBasicMaterial({  // 조명의 영향 받지 않음 (빠른 rendering, UI용)
+                color: 0x333333,
                 wireframe: true
             })
 
@@ -178,8 +186,6 @@ render();
 function render() {
     orbitControls.update();
     stats.update();
-
-    // render using requestAnimationFrame
-    requestAnimationFrame(render);
     renderer.render(scene, camera);
+    requestAnimationFrame(render);
 }

@@ -1,34 +1,38 @@
+// 04-mesh-properties.js
+// - GUI.listen, GUI.onChange 기능
+// - object의 transformation 순서: 항상 scale -> rotate -> translate로 고정
+// - object transformation의 순서 바꾸는 방법 (pivot parent 이용)
+
 import * as THREE from 'three';  
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import Stats from 'three/addons/libs/stats.module.js';
 import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 
-// create a scene, that will hold all our elements such as objects, cameras and lights.
 const scene = new THREE.Scene();
 
-// create a camera, which defines where we're looking at.
-const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
 camera.position.x = -30;
 camera.position.y = 40;
 camera.position.z = 30;
 camera.lookAt(scene.position);
 scene.add(camera);
 
-// create a render and set the size
+// renderer
 const renderer = new THREE.WebGLRenderer();
-
 renderer.setClearColor(new THREE.Color(0x000000));
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
 document.body.appendChild(renderer.domElement);
 
+// stats
 const stats = new Stats();
 document.body.appendChild(stats.dom);
 
+// orbit controls
 const orbitControls = new OrbitControls(camera, renderer.domElement);
 orbitControls.enableDamping = true;
 
-// create the ground plane
+// ground plane
 const planeGeometry = new THREE.PlaneGeometry(60, 40, 1, 1);
 const planeMaterial = new THREE.MeshLambertMaterial({color: 0xffffff});
 const plane = new THREE.Mesh(planeGeometry, planeMaterial);
@@ -50,7 +54,7 @@ directionalLight.castShadow = true;
 scene.add(directionalLight);
 
 // add spotlight for the shadows
-const spotLight = new THREE.SpotLight(0xffffff, 200, 180, Math.PI/8);
+const spotLight = new THREE.SpotLight(0xffffff, 300, 180, Math.PI/8);
 spotLight.shadow.mapSize.height = 2048;
 spotLight.shadow.mapSize.width = 2048;
 spotLight.position.set(-40, 30, 30);
@@ -62,7 +66,7 @@ scene.add(spotLight);
 const material = new THREE.MeshLambertMaterial({color: 0x44ff44});
 const geom = new THREE.BoxGeometry(5, 8, 3); // width, height, depth
 const cube = new THREE.Mesh(geom, material);
-cube.position.y = 4;
+cube.position.y = 4; // initial position (0, 4, 0)
 cube.castShadow = true;
 scene.add(cube);
 
@@ -143,8 +147,6 @@ guiTranslate.add(controls, 'translate');
 
 gui.add(controls, 'visible');
 
-const clock = new THREE.Clock();
-
 render();
 
 function render() {
@@ -154,12 +156,34 @@ function render() {
 
     cube.visible = controls.visible;
 
+    // 한 frame 내에서 object의 transformation 순서
+    // Three.js 는 항상 scale -> rotation -> translation 순서로 변환을 적용한다.
+    // 만일 이 순서를 바꾸기 원한다면, object의 parent-child 관계를 이용하여 
+    // 변환 순서를 바꾸어 주어야 한다. 
+    // 
+    // Example: translate -> rotate 순서로 바꾸기
+    //
+    // const pivot = new THREE.Object3D(); // rotation의 중심이 될 parent object (dummy)
+    // scene.add(pivot);
+    //
+    // const satellite = new THREE.Mesh(new THREE.SphereGeometry(0.2), 
+    //                                  new THREE.MeshBasicMaterial({ color: 0xff0000 }));
+    // satellite.position.set(3, 0, 0);  // 중심 (pivot) 으로부터 반지름 거리만큼 이동
+    // pivot.add(satellite);             // satellite의 parent object로 pivot을 지정
+    // 
+    // 애니메이션에서 pivot만 회전:
+    // function animate() {
+    //   requestAnimationFrame(animate);
+    //   pivot.rotation.y += 0.01;
+    //   renderer.render(scene, camera);
+    // }
+
     cube.rotation.x = controls.rotationX;
     cube.rotation.y = controls.rotationY;
     cube.rotation.z = controls.rotationZ;
 
     cube.scale.set(controls.scaleX, controls.scaleY, controls.scaleZ);
 
-    requestAnimationFrame(render);
     renderer.render(scene, camera);
+    requestAnimationFrame(render);
 }

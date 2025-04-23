@@ -1,3 +1,7 @@
+// 05-both-cameras.js
+// - PerspectiveCamera vs OrthographicCamera
+// - OrbitControl change when camera changes
+
 import * as THREE from 'three';  
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import Stats from 'three/addons/libs/stats.module.js';
@@ -69,6 +73,7 @@ const controls = new function () {
         if (camera instanceof THREE.PerspectiveCamera) {
             scene.remove(camera);
             camera = null; // 기존의 camera 제거    
+            // OrthographicCamera(left, right, top, bottom, near, far)
             camera = new THREE.OrthographicCamera(window.innerWidth / -16, 
                 window.innerWidth / 16, window.innerHeight / 16, window.innerHeight / -16, -200, 500);
             camera.position.x = 120;
@@ -88,7 +93,7 @@ const controls = new function () {
             camera.position.y = 60;
             camera.position.z = 180;
             camera.lookAt(scene.position);
-            orbitControls.dispose();
+            orbitControls.dispose(); // 기존의 orbitControls 제거
             orbitControls = null;
             orbitControls = new OrbitControls(camera, renderer.domElement);
             orbitControls.enableDamping = true;
