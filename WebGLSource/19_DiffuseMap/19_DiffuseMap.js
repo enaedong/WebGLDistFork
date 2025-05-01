@@ -33,7 +33,7 @@ let arcBallMode = 'CAMERA';     // 'CAMERA' or 'MODEL'
 let shadingMode = 'FLAT';       // 'FLAT' or 'SMOOTH'
 
 const cylinder = new Cylinder(gl, 32);
-const lamp = new Cube(gl);
+const lamp = new Cube(gl); // lamp object
 const axes = new Axes(gl, 1.5); // create an Axes object with the length of axis 1.5
 const texture = loadTexture(gl, true, '../images/textures/sunrise.jpg');
 
@@ -191,7 +191,7 @@ async function main() {
         shader.setVec3("light.ambient", vec3.fromValues(0.2, 0.2, 0.2));
         shader.setVec3("light.diffuse", vec3.fromValues(0.7, 0.7, 0.7));
         shader.setVec3("light.specular", vec3.fromValues(1.0, 1.0, 1.0));
-        shader.setInt("material.diffuse", 0);
+        shader.setInt("material.diffuse", 0); // texture unit 0
         shader.setVec3("material.specular", vec3.fromValues(0.8, 0.8, 0.8));
         shader.setFloat("material.shininess", shininess);
         shader.setVec3("u_viewPos", cameraPos);

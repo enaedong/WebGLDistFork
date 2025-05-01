@@ -28,6 +28,7 @@ let projMatrix = mat4.create();
 let modelMatrix = mat4.create();
 let lampModelMatrix = mat4.create();
 
+// one cylinder and three cube objects
 const cylinder = new Cylinder(gl, 32);
 const cube = [new Cube(gl), new Cube(gl), new Cube(gl)];
 const cubePos = [
@@ -48,16 +49,17 @@ const cameraPos = vec3.fromValues(0, 0, 3);
 
 const lampPoint = [new Cube(gl), new Cube(gl), new Cube(gl)]; // cube lamp for 3 point lights
 const lampSpot = new Cube(gl); // cube lamp for spotLight    
-const lightDirDirection = vec3.fromValues(-0.1, 0.0, 0.2);
+const lightDirDirection = vec3.fromValues(-0.1, 0.0, 0.2); // directional light direction
+// three point lights' positions
 const lightPosPoint = [
     vec3.fromValues(0.7, 1.2, 0.5), 
     vec3.fromValues(1.3, -1,3, -1.0), 
     vec3.fromValues(-0.1, 3.0, -0.2)
 ];
-const lightPosSpot = vec3.fromValues(-1.0, 0.0, 1.5)
+const lightPosSpot = vec3.fromValues(-1.0, 0.0, 1.5) // spotlight position
 const lightSize = vec3.fromValues(0.1, 0.1, 0.1);
-const lightColorPoint = vec3.fromValues(1.0, 1.0, 1.0);
-const lightColorSpot = vec3.fromValues(1.0, 1.0, 0.0);
+const lightColorPoint = vec3.fromValues(1.0, 1.0, 1.0); // point light lamp's color
+const lightColorSpot = vec3.fromValues(1.0, 1.0, 0.0);  // spotlight lamp's color
 const shininess = 16.0;
 
 // Arcball object: initial distance 5.0, rotation sensitivity 2.0, zoom sensitivity 0.0005
