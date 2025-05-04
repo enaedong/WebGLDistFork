@@ -10,7 +10,8 @@
 // - orbitControls object: damping
 // - GUI value input
 // - resize event listener
-// - axes Helper
+// - AxesHelper
+// - GridHelper
 // - ambient light
 // - directional light, how to change the target of directional light, casting shadow
 // - Mesh = geometry + material
@@ -108,9 +109,13 @@ function onResize() { // resize handler
     renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
-// axes helper: x, y, z 축을 보여줌
+// axes helper: x, y, z 축을 보여줌 (red, green, blue 순서))
 const axesHelper = new THREE.AxesHelper(10); // 10 unit 길이의 축을 보여줌
 scene.add(axesHelper);
+
+// GridHelper: xz plane에 grid를 보여줌
+const gridHelper = new THREE.GridHelper(10, 7); // size: 10, division: 7
+scene.add(gridHelper);
 
 // add ambient light
 const ambientLight = new THREE.AmbientLight(0x333333);
@@ -122,18 +127,22 @@ dirLight.position.set(5, 12, 8); // 여기서 부터 (0, 0, 0) 방향으로 ligh
 dirLight.castShadow = true;  // 이 light가 shadow를 만들어 낼 것임
 scene.add(dirLight);
 
-//----- Directional light의 target 위치를 바꾸기 ------------
-//const light = new THREE.DirectionalLight(0xffffff, 1);
-//light.position.set(10, 10, 10); // 광원이 있는 위치
-//
-// 타겟 객체 생성
-//const targetObject = new THREE.Object3D();
-//targetObject.position.set(5, 0, 0); // 타겟 위치 지정
-//scene.add(targetObject);
-//
-// 빛의 방향 지정
-//light.target = targetObject;
-//scene.add(light);
+/*----- Directional light의 target 위치 바꾸기 ----------------------
+
+  // Default target 위치는 (0, 0, 0)임
+
+  const light = new THREE.DirectionalLight(0xffffff, 1);
+  light.position.set(10, 10, 10); // 광원이 있는 위치
+
+  // Target Object 생성 (dummy object), Mesh는 Object3D의 subclass
+  const targetObject = new THREE.Object3D();
+  targetObject.position.set(5, 0, 0); // Target's position
+  scene.add(targetObject);
+
+  // Light의 Target 지정
+  light.target = targetObject;
+  scene.add(light);
+-----------------------------------------------------------------*/
 
 // create a cube and add it to the scene
 // BoxGeometry: width, height, depth의 default는 1
@@ -169,7 +178,7 @@ torusKnotMesh.position.x = 2;
 scene.add(torusKnotMesh);
 
 // add a plane: 원래 plane은 xy plane 위에 생성됨
-const planeGeometry = new THREE.PlaneGeometry(15, 15); // x, y 크기
+const planeGeometry = new THREE.PlaneGeometry(15, 15); // width, height
 const planeMaterial = new THREE.MeshLambertMaterial({ color: 0xaaaa00 });
 const plane = new THREE.Mesh(planeGeometry, planeMaterial);
 plane.rotation.x = -Math.PI / 2;  // x축 기준으로 -90도 회전 (+y를 up으로 하는 plane이 됨)

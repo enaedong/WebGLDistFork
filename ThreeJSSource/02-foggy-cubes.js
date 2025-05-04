@@ -11,7 +11,7 @@ import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 
 const scene = new THREE.Scene();
 // 안개 (fog) 효과 추가
-scene.fog = new THREE.Fog(0xaaaaaa, 30, 100); // color, near, far
+scene.fog = new THREE.Fog(0xaaaaaa, 30, 100); // fog color, near, far
 
 const renderer = new THREE.WebGLRenderer();
 renderer.setClearColor(0xffffff); 
