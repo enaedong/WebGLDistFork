@@ -132,9 +132,10 @@ function addGeometries(scene) {
     geoms.push(new THREE.OctahedronGeometry(4, 0)); // 정팔면체: radius, detail (0, 1, 2, ...)
 
     // create a geometry based on a function
+    // parameters: function, slices, stacks
     const klein = new ParametricGeometry(ParametricGeometries.klein, 20, 10);
     klein.name = "klein";
-    geoms.push(klein); // function, slices, stacks
+    geoms.push(klein); 
 
     geoms.push(new THREE.TetrahedronGeometry(4, 0)); // 정4면체: radius, detail (0, 1, 2, ...)
 

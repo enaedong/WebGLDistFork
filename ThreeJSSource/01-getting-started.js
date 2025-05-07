@@ -86,7 +86,7 @@ document.body.appendChild(stats.dom);
 // add OrbitControls: arcball-like camera control
 const orbitControls = new OrbitControls(camera, renderer.domElement);
 orbitControls.enableDamping = true; // 관성효과, 바로 멈추지 않고 부드럽게 멈춤
-orbitControls.dampingFactor = 0.25; // 감속 정도, 크면 더 빨리 감속, default = 0.05
+orbitControls.dampingFactor = 0.05; // 감속 정도, 크면 더 빨리 감속, default = 0.05
 
 // add GUI: 간단한 user interface를 제작 가능
 // 사용법은 https://lil-gui.georgealways.com/ 
