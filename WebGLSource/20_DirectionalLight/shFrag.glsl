@@ -24,18 +24,26 @@ struct Light {
 uniform Material material;
 uniform Light light;
 uniform vec3 u_viewPos;
+uniform int u_toonLevels; // Toon shading 단계 수 (예: 3)
+
+// Toon quantization 함수
+float toonQuantize(float value, int levels) {
+    float step = 1.0 / float(levels);
+    return floor(value / step) * step;
+}
 
 void main() {
     // ambient
-    vec3 rgb = texture(material.diffuse, texCoord).rgb;
+    vec3 rgb = vec3(1.0, 0.5, 0.1); // 고정 주황색
     vec3 ambient = light.ambient * rgb;
-  	
+    
     // diffuse 
     vec3 norm = normalize(normal);
-    //vec3 lightDir = normalize(light.position - fragPos);
     vec3 lightDir = normalize(light.direction);
     float dotNormLight = dot(norm, lightDir);
     float diff = max(dotNormLight, 0.0);
+    // Toon quantization for diffuse
+    diff = toonQuantize(diff, u_toonLevels);
     vec3 diffuse = light.diffuse * diff * rgb;  
     
     // specular
@@ -44,6 +52,8 @@ void main() {
     float spec = 0.0;
     if (dotNormLight > 0.0) {
         spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
+        // Toon quantization for specular
+        spec = toonQuantize(spec, u_toonLevels);
     }
     vec3 specular = light.specular * spec * material.specular;  
         
